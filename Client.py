@@ -39,7 +39,7 @@ class Client:
             if request == "quit":
                 return
 
-            clientSocket.send(str.encode(request))
+            clientSocket.send(request.encode('utf-8'))
             server_response = str(clientSocket.recv(1024), "utf-8")
             print(server_response)
 

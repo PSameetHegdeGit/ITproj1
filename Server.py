@@ -1,9 +1,7 @@
-import DomainName
-import time
-import random
-
+from DomainName import DomainName
 import socket
 import sys
+
 
 '''
 
@@ -55,27 +53,51 @@ class Server ():
     def socketAccept(self):
         conn, address = serverSocket.accept()
         print("Connection has been establish: @ IP: " + str(address[0]) + " | " + "port: " + str(address[1]))
-        Server.commands(self, conn)
-        conn.close()
+        try:
+            while True:
+                client_response = str(conn.recv(1024), "utf-8")
+                conn.send(Server.searchDNL(self, client_response).encode('utf-8'))
+        except:
+            print("Connection has a problem!")
+            conn.close()
 
 
-    def commands(self, conn):
-        while True:
-            client_response = str(conn.recv(1024), "utf-8")
-            conn.send(str.encode("Server is working!"))
-            print(client_response)
+    def searchDNL(self, client_response):
+            print("in searchDNL")
+            for domainInfo in self.domainNameList:
+                if (client_response == domainInfo.hostname):
+                    print(domainInfo.hostname)
+                    output = "{} {} {}".format(domainInfo.hostname, domainInfo.IP, domainInfo.flag)
+                    return output
+
 
     #Will append the domainInfo into a file
     def appendDNL(self, domainInfo):
         (self.domainNameList).append(domainInfo) #domainInfo is a ServerStructure obj
 
+    def readDataFromFile(self, fileName):
+        File = open(fileName, "r")
+        for line in File:
+            tokens = line.split() #This splits line into tokens to be put into domain info
+            domainInfo = DomainName(tokens[0], tokens[1], tokens[2]) #This is the domain information
+            #print("Domain Info:", domainInfo.hostname, domainInfo.IP, domainInfo.flag)
+            Server.appendDNL(self, domainInfo)
+
+        File.close()
 
 #First try to create new server, connect with client, and send basic messages back and forth
 if __name__ == "__main__":
-    newServer = Server() #Not sure why this isn't working
-    newServer.createSocket(5009) #random port filled
+
+    newServer = Server() #Not sure why I can't access for input
+    newServer.readDataFromFile("PROJI-DNSRS.txt")
+
+    newServer.createSocket(5015) #random port filled
     newServer.socketBind()
     newServer.socketAccept()
 
-
-#TODO: Need to keep server running for as many clients I create --> right now server ends when I create a client
+#TODO
+'''
+1) Need to keep server running for as many clients I create --> right now server ends when I create a client
+2) be able to search for client queries and send back to client 
+3) Root and TS should be connected
+'''
