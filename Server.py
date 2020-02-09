@@ -3,7 +3,7 @@ import time
 import random
 
 import socket
-
+import sys
 
 '''
 
@@ -14,30 +14,56 @@ will contain list of ServerStructure objects, server socket set up, and will spe
 '''
 
 class Server ():
-
-    # For now I'll define the serverName
+    '''
+        # For now I'll define the serverName
     def __init__(self, serverName):
         self.serverName = serverName
 
+    '''
+
     domainNameList = []
 
-    def socketSetUp(self, port):
-        print("This function creates a socket for server")
+    def createSocket(self, portno):
+        print("Creating a socket\n")
         try:
+            global host
+            global port
+            global serverSocket
+            host = ''
+            port = portno
+
             serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
         except socket.error as err:
             print('socket could not be opened: {}\n'.format(err))
             exit()
 
-        server_binding = ('', port)
-        serverSocket.bind(server_binding)
+    def socketBind(self):
+        try:
+            global host
+            global port
+            global serverSocket
+            print("Binding socket to port: " + str(port))
 
-        serverSocket.listen(1)
-        host = socket.gethostname()
-        localhost_ip = socket.gethostbyname(host)
+            serverSocket.bind((host, port))
+            serverSocket.listen(1)
 
-        csockid, addr = serverSocket.accept() #csockid = new socket obj that can be used to send and receive data; addr = address of socket on other end of connection (i.e. client); thus return val of accept() is (conn, address)
+        except socket.error as err:
+            print("Server could not bind: error " + str(err))
+            Server.socketBind(self) #trying to include recursion --> idk about syntax
 
+    def socketAccept(self):
+        conn, address = serverSocket.accept()
+        print("Connection has been establish: @ IP: " + str(address[0]) + " | " + "port: " + str(address[1]))
+        Server.commands(self, conn)
+        conn.close()
+
+
+    def commands(self, conn):
+        while True:
+            client_response = str(conn.recv(1024), "utf-8")
+            conn.send(str.encode("Server is working!"))
+            print(client_response)
 
     #Will append the domainInfo into a file
     def appendDNL(self, domainInfo):
@@ -46,5 +72,10 @@ class Server ():
 
 #First try to create new server, connect with client, and send basic messages back and forth
 if __name__ == "__main__":
-    newServer = Server(input("Enter Server Name:"))
-    newServer.socketSetUp()
+    newServer = Server() #Not sure why this isn't working
+    newServer.createSocket(5009) #random port filled
+    newServer.socketBind()
+    newServer.socketAccept()
+
+
+#TODO: Need to keep server running for as many clients I create --> right now server ends when I create a client
