@@ -9,6 +9,8 @@ This class will define server functionality:
 
 will contain list of ServerStructure objects, server socket set up, and will specify what level server is @? (as in is it RS or TS)
 
+If RS --> Need to find way to pass hostname of TS to RS
+
 '''
 
 class Server ():
@@ -21,6 +23,7 @@ class Server ():
 
     domainNameList = []
 
+    #Below function creates a socket for server
     def createSocket(self, portno):
         print("Creating a socket\n")
         try:
@@ -36,6 +39,7 @@ class Server ():
             print('socket could not be opened: {}\n'.format(err))
             exit()
 
+    #Below function binds socket to port
     def socketBind(self):
         try:
             global host
@@ -50,6 +54,7 @@ class Server ():
             print("Server could not bind: error " + str(err))
             Server.socketBind(self) #trying to include recursion --> idk about syntax
 
+    #Below function accepts connection from client --> SOCKET SHOULD NOT BE ENDED If connection is dropped
     def socketAccept(self):
         conn, address = serverSocket.accept()
         print("Connection has been establish: @ IP: " + str(address[0]) + " | " + "port: " + str(address[1]))
@@ -62,6 +67,7 @@ class Server ():
             conn.close()
 
 
+    #searches list for DNL we
     def searchDNL(self, client_response):
             print("in searchDNL")
             for domainInfo in self.domainNameList:
@@ -75,6 +81,7 @@ class Server ():
     def appendDNL(self, domainInfo):
         (self.domainNameList).append(domainInfo) #domainInfo is a ServerStructure obj
 
+    #Reads DNSRS or DNSTS from file
     def readDataFromFile(self, fileName):
         File = open(fileName, "r")
         for line in File:
