@@ -1,9 +1,15 @@
 import threading
 import time
 import random
-import DomainName
+from DomainName import DomainName
 
 import socket
+
+
+'''
+Only output if received A tag
+
+'''
 
 class Client:
 
@@ -18,12 +24,13 @@ class Client:
         portNo = port #is there a required port for us to use or can we use any port? Also conceptual question: should separate servers have separate ports?
         localhost_addr = socket.gethostbyname(socket.gethostname()) #gethostbyname translates hostname given by socket.gethostname() into IPV4 format
 
-        try:
-            clientSocket.connect((localhost_addr, portNo)) #since both client and server r on same host, localhost_addr should be fine
-            print("Client has successfully connected!")
-            Client.client_requests(self, clientSocket)
-        except:
-            print("connection could not be established or has terminated")
+        while True:
+
+                clientSocket.connect((localhost_addr, portNo)) #since both client and server r on same host, localhost_addr should be fine
+                print("Client has successfully connected!")
+                Client.client_requests(self, clientSocket)
+
+               # print("connection could not be established or has terminated")
 
         clientSocket.close()
         exit()
@@ -41,7 +48,10 @@ class Client:
 
             clientSocket.send(request.encode('utf-8'))
             server_response = str(clientSocket.recv(1024), "utf-8")
+
             print(server_response)
+
+            #if server response reports NS -> close connection
 
 
 

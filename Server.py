@@ -3,16 +3,6 @@ import socket
 import sys
 
 
-'''
-
-This class will define server functionality: 
-
-will contain list of ServerStructure objects, server socket set up, and will specify what level server is @? (as in is it RS or TS)
-
-If RS --> Need to find way to pass hostname of TS to RS
-
-'''
-
 class Server ():
     '''
         # For now I'll define the serverName
@@ -60,8 +50,11 @@ class Server ():
         print("Connection has been establish: @ IP: " + str(address[0]) + " | " + "port: " + str(address[1]))
         try:
             while True:
-                client_response = str(conn.recv(1024), "utf-8")
+                #is the following correct
+                client_response = str(conn.recv(1024), "utf-8") # Following does not work in python 2.7!!
+                print(client_response)
                 conn.send(Server.searchDNL(self, client_response).encode('utf-8'))
+
         except:
             print("Connection has a problem!")
             conn.close()
@@ -98,13 +91,21 @@ if __name__ == "__main__":
     newServer = Server() #Not sure why I can't access for input
     newServer.readDataFromFile("PROJI-DNSRS.txt")
 
-    newServer.createSocket(5015) #random port filled
+    newServer.createSocket(5016) #random port filled
     newServer.socketBind()
-    newServer.socketAccept()
+    while True:
+        newServer.socketAccept()
 
 #TODO
 '''
 1) Need to keep server running for as many clients I create --> right now server ends when I create a client
 2) be able to search for client queries and send back to client 
 3) Root and TS should be connected
+
+If RS --> Need to find way to pass hostname of TS to RS
+Server should not end when connection is closed 
+Accept multiple client connections? --> could use threads 
+Should connection be maintained until server does not have the ip? Or once ip is transmitted connection is finished
+Connection is ending automatically in terminal --> Fix bug!!
+Case Insensitive
 '''
